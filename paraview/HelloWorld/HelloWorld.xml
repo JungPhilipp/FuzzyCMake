@@ -1,0 +1,32 @@
+<ServerManagerConfiguration>
+    <ProxyGroup name="filters">
+        <SourceProxy name="HelloWorld"
+                     class="fuzzyHelloWorld"
+                     label="HelloWorld">
+            <InputProperty
+                    name="Input"
+                    port_index="0"
+                    command="SetInputConnection"
+                    label="Data Field">
+                <ProxyGroupDomain name="groups">
+                    <Group name="sources"/>
+                    <Group name="filters"/>
+                </ProxyGroupDomain>
+                <DataTypeDomain name="input_type">
+                    <DataType value="vtkImageData"/>
+                </DataTypeDomain>
+                <InputArrayDomain attribute_type="any"
+                                  name="input_array0"
+                                  optional="1"/>
+            </InputProperty>
+            <Documentation>
+                Some input
+            </Documentation>
+
+            <Hints>
+                <ShowInMenu category="fuzzy"/>
+            </Hints>
+            <OutputPort name="SomeOutputName" index="0" id="port0"/>
+        </SourceProxy>
+    </ProxyGroup>
+</ServerManagerConfiguration>

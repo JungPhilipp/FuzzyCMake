@@ -13,7 +13,7 @@ FuzzeCMake
 |   └─── exp0
 |
 └─── include
-|   └───fuzzy
+|   └─── fuzzy
 |
 └─── src
 |   └─── fuzzy
@@ -31,17 +31,16 @@ The CMake structure looks similar:
 ### fuzzy_core
 Like the name suggests, this contains the core code of libFuzzy.
 Other targets using parts are simply linked against fuzzy_core.
-fuzzy_core also includes are core dependencies, which are bundled in fuzzy_common.
 
 ### fuzzy_common
 The fuzzy_common serves as a collection of libraries against which other targets link.
 In this case it includes Boost, Catch2, Easylogging, Eigen and OpenMP(if enabled).
-To add new dependencies (such as cereal or ligigl) can simply be added to this target.
+New dependencies (such as cereal or ligigl) can simply be added to this target.
 For more special use-cases (such as vtk or paraview) one should add another library.
 
 ### third_party
 Dependencies used with fuzzy_common are managed and build within the third_party folder.
-To add a new dependency, add the source directly are init. a git submodule and append the CMakeLists.txt.
+To add a new dependency, add the source directly and append the CMakeLists.txt. (soon git submodules)
 ### fuzzy_tests
 Includes tests for the core codes (from fuzzy_core). If new parts of the library are added (lets say fuzzy_vtk),
 one would simply add another test target.
@@ -53,7 +52,6 @@ For each example the user decides which libs to use. In this simple case, we jus
 
 ### TODO
 Instead of copying code for third_party dependencies, git submodules should be used.
-Git Submodules for third_party (soon)
 
 For CI/CD purposes a travis.yml config file is required
-Travis config (soon)
+

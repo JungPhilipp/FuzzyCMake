@@ -6,6 +6,10 @@
 option(FUZZY_BUILD_TESTING "Build Testing" ON)
 option(FUZZY_BUILD_EXAMPLES "Build Examples" ON)
 option(FUZZY_ENABLE_OPENMP "Enable OpenMP" ON)
+option(FUZZY_ENABLE_VTK "Enable VTK" ON)
+option(FUZZY_BUILD_PARAVIEW_PLUGINS "Build ParaView Plugins" ON)
+
+
 
 ### C++ Standard Version
 # Can also be used for other languages such as CUDA
@@ -23,8 +27,11 @@ option(FUZZY_BUILD_DOCS "Build documentation" OFF)
 ### fuzzy Directory Variables
 ################################################################################
 set(FUZZY_ROOT "${CMAKE_CURRENT_LIST_DIR}/../..")
-set(FUZZY_SOURCE_DIR "${FUZZY_ROOT}/include/fuzzy")
+set(FUZZY_INCLUDE_DIR "${FUZZY_ROOT}/include/fuzzy")
+set(FUZZY_SOURCE_DIR "${FUZZY_ROOT}/src")
 set(FUZZY_THIRD_PARTY "${FUZZY_ROOT}/third_party")
+set(FUZZY_VTK_SOURCE_DIR "${FUZZY_ROOT}/src/vtk")
+set(FUZZY_VTK_INCLUDE_DIR "${FUZZY_ROOT}/include/fuzzy/vtk")
 
 ################################################################################
 ### Packages
@@ -57,6 +64,22 @@ endif ()
 ### Third Party
 add_subdirectory(${FUZZY_THIRD_PARTY})
 
+### ParaView Plugins
+if (FUZZY_BUILD_PARAVIEW_PLUGINS)
+  add_subdirectory("${FUZZY_ROOT}/paraview")
+endif ()
+
+### libFUZZY Source Files
+## Add new source files here
+set(FILES_FUZZY_CORE
+    foo.cpp
+    )
+
+set(SOURCES_FUZZY_CORE)
+foreach (FILENAME ${FILES_FUZZY_CORE})
+  set(SOURCES_FUZZY_CORE ${SOURCES_FUZZY_CORE} "${FUZZY_SOURCE_DIR}/${FILENAME}")
+endforeach ()
+
 ################################################################################
 ### Libraries
 ################################################################################
@@ -64,12 +87,13 @@ add_subdirectory(${FUZZY_THIRD_PARTY})
 # Later you can simply link against "common" instead of linking against all libs separately
 
 
-# This can bbe changed if you want a static lib option
-set(FUZZY_SCOPE INTERFACE)
-
 add_library(fuzzy_common INTERFACE)
 target_include_directories(fuzzy_common INTERFACE "${FUZZY_ROOT}/include/")
 target_link_libraries(fuzzy_common INTERFACE Eigen3 Boost::boost)
+
+if (FUZZY_ENABLE_VTK)
+  target_compile_definitions(fuzzy_common INTERFACE -DFUZZY_ENABLE_VTK)
+endif ()
 
 if (FUZZY_ENABLE_OPENMP)
   target_link_libraries(fuzzy_common INTERFACE OpenMP::OpenMP_CXX)
@@ -83,10 +107,19 @@ add_library(fuzzy::common ALIAS fuzzy_common)
 ### fuzzy Core
 ################################################################################
 
-add_library(fuzzy_core INTERFACE)
-target_link_libraries(fuzzy_core ${FUZZY_SCOPE} fuzzy_common)
+add_library(fuzzy_core SHARED ${SOURCES_FUZZY_CORE})
+target_include_directories(fuzzy_core PRIVATE ${FUZZY_INCLUDE_DIR})
+target_link_libraries(fuzzy_core INTERFACE fuzzy_common)
 
 add_library(fuzzy::core ALIAS fuzzy_core)
+
+################################################################################
+### VTK
+################################################################################
+
+if (FUZZY_ENABLE_VTK)
+  add_subdirectory("${FUZZY_ROOT}/src/vtk")
+endif ()
 
 ################################################################################
 ### Doxygen
@@ -118,8 +151,8 @@ if (FUZZY_BUILD_DOCS)
   set(DOXYGEN_SEARCH_INCLUDES YES)
 
   doxygen_add_docs(fuzzy-docs
-      "${FUZZY_ROOT}/include"
-      WORKING_DIRECTORY "${FUZZY_ROOT}/include")
+      ${FUZZY_INCLUDE_DIR}
+      WORKING_DIRECTORY ${FUZZY_INCLUDE_DIR})
 endif ()
 
 ################################################################################
@@ -139,6 +172,16 @@ function(fuzzy_print_summary)
   if (FUZZY_BUILD_DOCS)
     message(STATUS "  DOXYGEN_EXECUTABLE: ${DOXYGEN_EXECUTABLE}")
   endif ()
+
+  message(STATUS "FUZZY_BUILD_PARAVIEW_PLUGINS: ${FUZZY_BUILD_PARAVIEW_PLUGINS}")
+  if (FUZZY_BUILD_PARAVIEW_PLUGINS)
+    message(STATUS "  ParaView_DIR: ${ParaView_DIR}")
+  endif ()
+  message(STATUS "FUZZY_ENABLE_VTK: ${FUZZY_ENABLE_VTK}")
+  if (FUZZY_ENABLE_VTK)
+      message(STATUS "  ParaView_DIR: ${ParaView_DIR}")
+  endif ()
+
   message(STATUS "FUZZY install ----------------------------------------------------------------")
   message(STATUS "CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
   message(STATUS "-----------------------------------------------------------------------------")
