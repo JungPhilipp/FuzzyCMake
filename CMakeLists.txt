@@ -31,8 +31,8 @@ endif ()
 
 ### Compiler Flags
 # E.g. Vectorization for Eigen
-option(PRTL_WITH_MARCH_NATIVE "Use compiler flag -march=native if available" ON)
-if (PRTL_WITH_MARCH_NATIVE)
+option(FUZZY_WITH_MARCH_NATIVE "Use compiler flag -march=native if available" ON)
+if (FUZZY_WITH_MARCH_NATIVE)
   # look for -march=native support for CPU vectorization
   include(CheckCXXCompilerFlag)
   CHECK_CXX_COMPILER_FLAG("-march=native" COMPILER_SUPPORTS_MARCH_NATIVE)
